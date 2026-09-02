@@ -26,7 +26,6 @@ public:
         other_socket.is_valid_ = false;
         is_valid_ = true;
     }
-
     Socket& operator=(Socket&& other_socket)  noexcept {
         // 关闭原socket
         if (is_valid_) {
@@ -44,6 +43,8 @@ public:
     void Bind(const std::string& addr_v4, const std::string& port) const;
     void Listen(int flags = 10) const;
     void Connect(const std::string& addr_v4, const std::string& port) const;
+
+    void SetTimeout(int seconds) const;
 
     [[nodiscard]] Socket Accept() const;
 

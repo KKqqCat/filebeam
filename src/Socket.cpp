@@ -29,7 +29,7 @@ void Socket::Bind(const std::string &addr_v4, const std::string &port) const {
 }
 
 void Socket::Listen(int flags) const {
-    if (listen(socket_fd_, 10) == -1) {
+    if (listen(socket_fd_, flags) == -1) {
         throw std::runtime_error("failed to make listen socket");
     }
 }
@@ -49,6 +49,18 @@ void Socket::Connect(const std::string &addr_v4, const std::string &port) const 
     int ret = connect(socket_fd_, reinterpret_cast<sockaddr*>(&sockaddr_in), sizeof(sockaddr_in));
     if (ret == -1) {
         throw std::runtime_error("failed to connect server");
+    }
+}
+
+void Socket::SetTimeout(int seconds) const {
+    timeval tv{};
+    tv.tv_sec = seconds;
+    tv.tv_usec = 0;
+    if (setsockopt(socket_fd_, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) == -1) {
+        throw std::runtime_error("failed to set SO_RCVTIMEO");
+    }
+    if (setsockopt(socket_fd_, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) == -1) {
+        throw std::runtime_error("failed to set SO_SNDTIMEO");
     }
 }
 

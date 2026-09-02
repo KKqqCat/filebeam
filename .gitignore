@@ -19,3 +19,9 @@ CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 compile_commands.json
+
+# 收发目录只保留目录本身，内容都是测试数据/运行产物
+Send/*
+!Send/.gitkeep
+Recv/*
+!Recv/.gitkeep

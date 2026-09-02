@@ -6,5 +6,6 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(filebeam src/main.cpp
         src/Socket.cpp
         src/CliParse.cpp
+        src/util.cpp
 )
 target_include_directories(filebeam PRIVATE src)
