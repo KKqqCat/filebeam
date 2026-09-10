@@ -1,15 +1,13 @@
 #include <charconv>
 #include <iostream>
-#include <sys/socket.h>
 #include <unistd.h>
 #include <chrono>
-#include <netinet/in.h>
-#include <csignal>
 
-#include "Socket.hpp"
-#include "util.hpp"
-
+#include "framework/Socket.hpp"
+#include "FileTransfer.hpp"
 #include "CliParse.hpp"
+
+using namespace Netbase;
 
 int main(int argc, char** argv) {
 
@@ -48,7 +46,7 @@ int main(int argc, char** argv) {
         auto last_tick = std::chrono::steady_clock::now();
         auto begin_tick = std::chrono::steady_clock::now();
 
-        util::ProgressFunc on_progress =
+        FileTransfer::ProgressFunc on_progress =
             [&first_flag, &last_tick, &speed, &rate, begin_tick](uint64_t done, uint64_t total) {
             auto now_tick = std::chrono::steady_clock::now();
             auto interval = now_tick - last_tick;
@@ -65,15 +63,16 @@ int main(int argc, char** argv) {
             }
         };
 
+        using namespace FileTransfer;
         if (parse_ret.is_listener) {
-            const util::TcpHeader header = util::recv_header(connection_socket.fd());
+            const TcpHeader header = FileTransfer::recv_header(connection_socket.fd());
             std::cout << "file name : " << header.file_name << std::endl << "file size : " << header.file_size <<" bytes"<< std::endl;
-            util::recv_file(connection_socket.fd(), header, on_progress);
+            recv_file(connection_socket.fd(), header, on_progress);
         }else {
-            const util::TcpHeader header = util::send_header(connection_socket.fd(), parse_ret.send_file_path.c_str());
+            const TcpHeader header = send_header(connection_socket.fd(), parse_ret.send_file_path.c_str());
             std::cout << "file name : " << header.file_name << std::endl << "file size : " << header.file_size <<" bytes"<< std::endl;
-            std::ifstream send_file{parse_ret.send_file_path.c_str(), std::ios::binary};
-            util::send_file(connection_socket.fd(), header, send_file, on_progress);
+            std::ifstream file{parse_ret.send_file_path.c_str(), std::ios::binary};
+            send_file(connection_socket.fd(), header, file, on_progress);
         }
 
         std::cout << std::endl << "file transfer over" << std::endl;
