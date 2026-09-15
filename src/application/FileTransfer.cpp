@@ -89,9 +89,12 @@ namespace FileTransfer {
         std::string file_name = header.file_name;
         uint64_t file_size = header.file_size;
 
+        if (!std::filesystem::is_directory(R"(Recv)")) {
+            std::filesystem::create_directory(R"(Recv)");
+        }
 
         // 创建/打开 文件
-        std::string new_file_path = R"(../Recv/)" + file_name;
+        std::string new_file_path = R"(Recv/)" + file_name;
         std::ofstream output(new_file_path, std::ios::binary);
         if (!output) {
             throw std::runtime_error("file path error");
